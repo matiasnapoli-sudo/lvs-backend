@@ -4,19 +4,55 @@ import { Mail, Phone, MapPin, ArrowRight, Send, Check } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 
 export default function ContactSection() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [form, setForm] = useState({ 
+  name: "", 
+  email: "", 
+  phone: "", 
+  message: "", 
+  captcha: "" 
+});
   const [status, setStatus] = useState("idle"); // idle | sending | sent
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus("sending");
-  
-    setStatus("sent");
-    setTimeout(() => {
-      setStatus("idle");
-      setForm({ name: "", email: "", phone: "", message: "" });
-    }, 3500);
-  };
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!form.captcha) {
+    alert("Please complete the captcha");
+    return;
+  }
+
+  setStatus("sending");
+
+  try {
+    const res = await fetch("https://lvs-backend.onrender.com/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+
+    console.log("RESPONSE:", data);
+
+    if (res.ok) {
+      setStatus("sent");
+      setTimeout(() => {
+        setStatus("idle");
+        setForm({ name: "", email: "", phone: "", message: "", captcha: "" });
+      }, 2500);
+    } else {
+      console.error("ERROR BACKEND:", data);
+      throw new Error("Error sending");
+    }
+
+  } catch (err) {
+    console.error(err);
+    setStatus("idle");
+    alert("Something went wrong");
+  }
+};
 
   return (
     <section id="contact" className="relative py-24 md:py-32 bg-card/30 overflow-hidden">
@@ -142,18 +178,10 @@ export default function ContactSection() {
                 placeholder="Tell us about your project..."
               />
             </div>
-const captcha = req.body.captcha;
-
-const verify = await fetch(
-  `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${captcha}`,
-  { method: "POST" }
-);
-
-const data = await verify.json();
-
-if (!data.success) {
-  return res.status(400).json({ success: false, error: "Captcha failed" });
-}
+<ReCAPTCHA
+  sitekey="6LfZNNksAAAAAN3wFLY_INJbF8P6pBU6_9SNmWL1"
+  onChange={(value) => setForm({ ...form, captcha: value })}
+/>
             <button
               type="submit"
               disabled={status !== "idle"}
