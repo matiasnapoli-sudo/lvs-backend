@@ -71,7 +71,7 @@ if (!data.success) {
 
 await resend.emails.send({
 from: "LVS Communications <contact@lvscommunications.com>",
-  to: ["speculumraw@gmail.com"],
+    to: ["diego@lvscommunications.com"],
   subject: "New Contact Form",
   html: `
     <h2>New message from website</h2>
