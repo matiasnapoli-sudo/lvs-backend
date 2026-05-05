@@ -70,7 +70,7 @@ if (!data.success) {
 }
 
 await resend.emails.send({
-from: "onboarding@resend.dev"
+from: "LVS Communications <contact@lvscommunications.com>",
   to: ["speculumraw@gmail.com"],
   subject: "New Contact Form",
   html: `
