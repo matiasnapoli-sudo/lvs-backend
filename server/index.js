@@ -2,9 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const { Resend } = require("resend");
-const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const rateLimit = require("express-rate-limit");
-dotenv.config({ path: "./server/.env" });
+dotenv.config();
 
 console.log("ENV FILE LOADED");
 console.log("API KEY:", process.env.RESEND_API_KEY);
@@ -53,18 +52,25 @@ if (message.trim().length < 10) {
   return res.status(400).json({ success: false, error: "Captcha missing" });
 }
 
-const verify = await fetch(
-  `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${captcha}`,
-  { method: "POST" }
-);
+const params = new URLSearchParams();
+params.append("secret", process.env.RECAPTCHA_SECRET);
+params.append("response", captcha);
+
+const verify = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+  method: "POST",
+  body: params,
+});
 
 const data = await verify.json();
+
+console.log("CAPTCHA VERIFY:", data);
 
 if (!data.success) {
   return res.status(400).json({ success: false, error: "Captcha failed" });
 }
+
 await resend.emails.send({
-from: "LVS Communications <contact@lvscommunications.com>",
+from: "onboarding@resend.dev"
   to: ["speculumraw@gmail.com"],
   subject: "New Contact Form",
   html: `
