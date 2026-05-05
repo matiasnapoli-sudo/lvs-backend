@@ -64,7 +64,7 @@ if (!data.success) {
   return res.status(400).json({ success: false, error: "Captcha failed" });
 }
 await resend.emails.send({
-from: "LVS Communications <contact@lvscommunications.com>"
+from: "LVS Communications <contact@lvscommunications.com>",
   to: ["speculumraw@gmail.com"],
   subject: "New Contact Form",
   html: `
